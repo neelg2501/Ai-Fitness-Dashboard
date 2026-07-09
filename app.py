@@ -1,6 +1,6 @@
 # ================================================================
 # AI FITNESS & DIET RECOMMENDATION SYSTEM WITH USER AUTHENTICATION
-# Phase 1 — Secure User Registration & Login Gateway
+# Phase 1 — Secure User Registration & Login Gateway (+ Guest Access)
 # Phase 2 — Profile Initialization & Parameter Inputs
 # Phase 3 — ML Model Background Routing Handshake (with cloud fallback)
 # Phase 4 — High-Fidelity Analytics Dashboard & Trackers
@@ -29,46 +29,59 @@ if "logged_in" not in st.session_state:
 if "current_user" not in st.session_state:
     st.session_state.current_user = None
 if "user_db" not in st.session_state:
-    # UPDATED DICTIONARY CREDENTIALS AS REQUESTED
     st.session_state.user_db = {"admin": "admin", "neel": "neel"}
 
 # ── GATEWAY WINDOW: AUTHENTICATION PORTAL ───────────────────────
 if not st.session_state.logged_in:
     st.title("🔐 AI Fitness System — Security Gateway")
-    st.caption("Please authenticate or register a profile to unlock the AI analytics layer.")
+    st.caption("Please authenticate, register, or continue as a guest to unlock the AI analytics layer.")
     
-    auth_tab1, auth_tab2 = st.tabs(["🔒 Secure Login", "📝 Create Account"])
+    # Created a clean layout split: Login system on left, Quick Guest access on right
+    auth_col1, auth_col2 = st.columns([2, 1])
     
-    with auth_tab1:
-        st.subheader("Login to Your Dashboard")
-        login_user = st.text_input("Username / ID", key="login_uid")
-        login_pass = st.text_input("Password", type="password", key="login_pwd")
+    with auth_col1:
+        auth_tab1, auth_tab2 = st.tabs(["🔒 Secure Login", "📝 Create Account"])
         
-        if st.button("Authenticate", type="primary"):
-            if login_user in st.session_state.user_db and st.session_state.user_db[login_user] == login_pass:
-                st.session_state.logged_in = True
-                st.session_state.current_user = login_user
-                st.success(f"🔓 Access Granted! Welcome back, {login_user}.")
-                st.rerun() 
-            else:
-                st.error("❌ Invalid ID or Password. Please check your credentials.")
-                
-    with auth_tab2:
-        st.subheader("Register New Profile")
-        reg_user = st.text_input("Choose Username / ID", key="reg_uid")
-        reg_pass = st.text_input("Create Password", type="password", key="reg_pwd")
-        reg_confirm = st.text_input("Confirm Password", type="password", key="reg_pwd_conf")
-        
-        if st.button("Register Account"):
-            if not reg_user or not reg_pass:
-                st.warning("⚠️ Fields cannot be blank.")
-            elif reg_user in st.session_state.user_db:
-                st.error("❌ Username already taken. Choose a unique ID.")
-            elif reg_pass != reg_confirm:
-                st.error("❌ Passwords do not match.")
-            else:
-                st.session_state.user_db[reg_user] = reg_pass
-                st.success("✅ Registration Successful! Please switch to the Login tab to authenticate.")
+        with auth_tab1:
+            st.subheader("Login to Your Dashboard")
+            login_user = st.text_input("Username / ID", key="login_uid")
+            login_pass = st.text_input("Password", type="password", key="login_pwd")
+            
+            if st.button("Authenticate", type="primary"):
+                if login_user in st.session_state.user_db and st.session_state.user_db[login_user] == login_pass:
+                    st.session_state.logged_in = True
+                    st.session_state.current_user = login_user
+                    st.success(f"🔓 Access Granted! Welcome back, {login_user}.")
+                    st.rerun() 
+                else:
+                    st.error("❌ Invalid ID or Password. Please check your credentials.")
+                    
+        with auth_tab2:
+            st.subheader("Register New Profile")
+            reg_user = st.text_input("Choose Username / ID", key="reg_uid")
+            reg_pass = st.text_input("Create Password", type="password", key="reg_pwd")
+            reg_confirm = st.text_input("Confirm Password", type="password", key="reg_pwd_conf")
+            
+            if st.button("Register Account"):
+                if not reg_user or not reg_pass:
+                    st.warning("⚠️ Fields cannot be blank.")
+                elif reg_user in st.session_state.user_db:
+                    st.error("❌ Username already taken. Choose a unique ID.")
+                elif reg_pass != reg_confirm:
+                    st.error("❌ Passwords do not match.")
+                else:
+                    st.session_state.user_db[reg_user] = reg_pass
+                    st.success("✅ Registration Successful! Please switch to the Login tab to authenticate.")
+
+    with auth_col2:
+        st.subheader("⚡ Quick Evaluation")
+        st.write("Testing the link without credentials? Skip the login gate to explore the dashboard features immediately.")
+        # Added Guest Bypass Trigger
+        if st.button("Continue as Guest →", type="secondary", use_container_width=True):
+            st.session_state.logged_in = True
+            st.session_state.current_user = "guest"
+            st.success("🔓 Access Unlocked as Guest!")
+            st.rerun()
 
 # ── DASHBOARD WINDOW: UNLOCKED CONTENT ───────────────────────────
 else:
